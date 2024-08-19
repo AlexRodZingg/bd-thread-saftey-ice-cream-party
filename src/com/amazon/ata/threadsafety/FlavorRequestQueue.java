@@ -12,16 +12,16 @@ public class FlavorRequestQueue {
         flavorQueue = new LinkedList<>();
     }
 
-    public void needFlavor(Flavor flavor) {
+    public synchronized void needFlavor(Flavor flavor) {
         flavorQueue.add(flavor);
     }
 
     public Flavor nextNeededFlavor() {
-        Flavor flavor = flavorQueue.poll();
+        Flavor flavor = pollFlavorQueue();
         while (flavor == null) {
             try {
                 Thread.sleep(10L);
-                flavor = flavorQueue.poll();
+                flavor = pollFlavorQueue();
             } catch (InterruptedException e) {
                 System.out.println("!!!Interrupted waiting for flavor request!!!");
                 e.printStackTrace();
@@ -29,6 +29,10 @@ public class FlavorRequestQueue {
             }
         }
         return flavor;
+    }
+
+    private synchronized Flavor pollFlavorQueue() {
+        return flavorQueue.poll();
     }
 
     public int requestCount() {
